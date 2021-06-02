@@ -1,0 +1,98 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: White;
+  color: Black;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  vertical-align: middle;
+}
+
+h1 {
+  margin: 0;
+  text-align: center;
+  padding: 30px;
+}
+
+.body_in_body {
+  margin: auto;
+  width: 40%;
+  height: auto;
+  vertical-align: middle;
+  min-width: 400px;
+}
+.form_layout {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.form_box {
+  background-color: LightGrey;
+  width: 50%;
+  min-width: 150px;
+  height: auto;
+  margin: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  border: none;
+  border-radius: 10px;
+  border-color: Green;
+  gap: 0px;
+}
+.form_box h2 {
+  margin: auto;
+  vertical-align: middle;
+  text-align: center;
+  padding: 5px;
+}
+.form_box form {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.flat_button,
+.flat_button + label {
+  background-color: Green;
+  color: White;
+  border: solid;
+  border-radius: 10px;
+  border-color: Green;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+.flat_button:hover,
+.flat_button:hover + label {
+  background-color: LightGreen;
+}
+.flat_button:focus,
+.flat_button:focus + label {
+  background-color: LightGreen;
+  outline: 1px dashed #000;
+}
+
+.button_text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: medium;
+  /* text-transform: uppercase; */
+  padding: 0;
+}
+
+input[type="file"],
+input[type="submit"] {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}

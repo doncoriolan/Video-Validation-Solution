@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    # server_name your_domain www.your_domain;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/tmp/uploader.sock;
+    }
+
+    location /vvs_output.xlsx {
+	alias /var/www/cache/sheet.xlsx;
+        add_header Content-disposition "attachment; filename=$1";
+    }
+}
