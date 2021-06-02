@@ -3,23 +3,34 @@ import subprocess
 import datetime
 import os
 import os.path
-from os import listdir
+from os import listdir, getenv
 import pandas as pd
 
-csv_location = '/opt/vvs/streams.csv'
-ffmpeg_location = '/usr/bin/ffmpeg'
-ffmpeglogs = '/opt/vvs/ffmpeglog/'
-black_results = '/opt/vvs/stream_results/result.txt'
-videofiles = '/opt/vvs/videofiles/'
-blacklog = '/opt/vvs/blacklog/'
-rtsp_err_txt = '/opt/vvs/stream_results/rtsp_error.txt'
-convert_location = '/usr/bin/convert'
-videofiles = '/opt/vvs/videofiles/'
-staticlog = '/opt/vvs/staticlogs/'
-static_result = '/opt/vvs/stream_results/static_results.txt'
-frozenlog = '/opt/vvs/frozenlog/'
-frozen_results = '/opt/vvs/stream_results/frozen.txt'
-csv_files = '/opt/vvs/stream_results/'
+persistent_location = getenv('vvs_persistent_data')
+input_file = getenv('vvs_input_csv')
+#FIXME:utilise this for output
+output_file = getenv('vvs_output_sheet')
+
+# only one directory currently planned to be persistent
+csv_location        = f"{persistent_location}/{input_file}"
+ffmpeglogs          = f"{persistent_location}/ffmpeglog/"
+black_results       = f"{persistent_location}/stream_results/result.txt"
+videofiles          = f"{persistent_location}/videofiles/"
+blacklog            = f"{persistent_location}/blacklog/"
+rtsp_err_txt        = f"{persistent_location}/stream_results/rtsp_error.txt"
+videofiles          = f"{persistent_location}/videofiles/"
+staticlog           = f"{persistent_location}/staticlogs/"
+static_result       = f"{persistent_location}/stream_results/static_results.txt"
+frozenlog           = f"{persistent_location}/frozenlog/"
+frozen_results      = f"{persistent_location}/stream_results/frozen.txt"
+csv_files           = f"{persistent_location}/stream_results/"
+
+# external binaries
+convert_location    = f"/usr/bin/convert"
+ffmpeg_location     = f"/usr/bin/ffmpeg"
+
+#FIXME: make this configurable
+static_check        = f"/static_check.sh"
 
 
 # Open the streams list csv file
@@ -73,7 +84,7 @@ with open(black_results, "w") as f:
 
 
 # for the files recorded check if the video is pure static using a bash scripts and generate log file for every video
-subprocess.call("bash /opt/vvs/static_check.sh", shell=True)
+subprocess.call(f"bash {static_check}", shell=True)
 
 
 # check if log files in the static log directory and read each file and generates a txt file to tell you if its static or not
