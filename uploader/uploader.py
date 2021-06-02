@@ -3,6 +3,7 @@
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 from os import stat, getenv
+from sys import stderr
 from datetime import datetime
 app = Flask(__name__)
 
@@ -28,13 +29,13 @@ def upload_file():
     if request.method == 'POST':
         f = request.files['file']
         if f.filename == "":  return render_template('error.html', title="Upload Error", message="No file attached")
+        f.save(sheet_dir + "/" + input_csv)
 
-        for line in f:
-            if len(str(line).split(',')) != 2:
-                del f
-                return render_template('error.html')
-
-        f.save(sheet_dir + "/" + secure_filename(input_csv))
+        # file is a stream, so have to save to read more than once
+        with open(sheet_dir + "/" + input_csv) as f:
+            for line in f:
+                if len(line.split(',')) != 2:
+                    return render_template('error.html', title="Validation Error", message="File is malformed")
         return render_template('success.html')
 
 if __name__ == '__main__':
