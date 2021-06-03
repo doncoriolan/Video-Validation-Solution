@@ -1,7 +1,10 @@
 import logging
 
 def strip_extension(filename):
-    return ".".join(filename.split('.')[0:-1])
+    if "." in filename:
+        return ".".join(filename.split('.')[0:-1])
+    else:
+        return filename
 
 def remove_leading_lines(filename, number):
     stripped = None
