@@ -55,6 +55,32 @@ h1 {
   justify-content: space-evenly;
 }
 
+.form_box_error {
+  background-color: Salmon;
+  width: 50%;
+  min-width: 150px;
+  height: auto;
+  margin: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  border: none;
+  border-radius: 10px;
+  border-color: Green;
+  gap: 0px;
+}
+.form_box_error h2 {
+  margin: auto;
+  vertical-align: middle;
+  text-align: center;
+  padding: 5px;
+}
+.form_box_error form {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .flat_button,
 .flat_button + label {
   background-color: Green;

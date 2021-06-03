@@ -29,7 +29,10 @@ def upload_file():
     if request.method == 'POST':
         f = request.files['file']
         if f.filename == "":  return render_template('error.html', title="Upload Error", message="No file attached")
-        f.save(sheet_dir + "/" + input_csv)
+        try:
+            f.save(sheet_dir + "/" + input_csv)
+        except:
+            return render_template('error.html', title="Save Error", message="File could not be saved")
 
         # file is a stream, so have to save to read more than once
         with open(sheet_dir + "/" + input_csv) as f:

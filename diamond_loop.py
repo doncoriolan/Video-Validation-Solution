@@ -8,6 +8,7 @@ from time import sleep
 from sys import stderr
 import pandas as pd
 import logging
+from file_management import strip_extension, remove_leading_lines, remove_empty_lines
 
 persistent_location = getenv('vvs_persistent_data')
 input_file = getenv('vvs_input_csv')
@@ -16,21 +17,22 @@ output_file = getenv('vvs_output_sheet')
 
 # only one directory currently planned to be persistent
 csv_location        = f"{persistent_location}/{input_file}"
-ffmpeglogs          = f"{persistent_location}/ffmpeglog/"
-black_results       = f"{persistent_location}/stream_results/result.txt"
-videofiles          = f"{persistent_location}/videofiles/"
-blacklog            = f"{persistent_location}/blacklog/"
-rtsp_err_txt        = f"{persistent_location}/stream_results/rtsp_error.txt"
-videofiles          = f"{persistent_location}/videofiles/"
-staticlog           = f"{persistent_location}/staticlogs/"
-static_result       = f"{persistent_location}/stream_results/static_results.txt"
-frozenlog           = f"{persistent_location}/frozenlog/"
-frozen_results      = f"{persistent_location}/stream_results/frozen.txt"
 csv_files           = f"{persistent_location}/stream_results/"
+videofiles          = f"{persistent_location}/videofiles/"
+ffmpeglogs          = f"{persistent_location}/ffmpeglog/"
+blacklog            = f"{persistent_location}/blacklog/"
+staticlogs          = f"{persistent_location}/staticlogs/"
+frozenlog           = f"{persistent_location}/frozenlog/"
+rtsp_results        = f"{persistent_location}/stream_results/rtsp_results"
+black_results       = f"{persistent_location}/stream_results/no_output_result"
+frozen_results      = f"{persistent_location}/stream_results/frozen_results"
+static_results      = f"{persistent_location}/stream_results/static_results"
 
 # external binaries
-convert_location    = f"/usr/bin/convert"
-ffmpeg_location     = f"/usr/bin/ffmpeg"
+bin_location        = f"/usr/bin"
+convert_location    = f"{bin_location}/convert"
+ffmpeg_location     = f"{bin_location}/ffmpeg"
+sed_location        = f"{bin_location}/sed"
 
 #FIXME: make this configurable
 static_check        = f"/static_check.sh"
@@ -56,17 +58,19 @@ def check_streams():
 
 # grab the rtsp errors from the log files we made above
 def get_rtsp_errors():
-    with open(rtsp_err_txt, "w") as f:
+    with open(rtsp_results, "w") as f:
         f.write("Name," + "RTSP_ERROR" + '\n')
         for filename in listdir(ffmpeglogs):
             with open(ffmpeglogs + filename) as currentFile:
                 text = currentFile.read()
                 if ('401 Un' in text):
-                    f.write( filename + ',401' + '\n')
-                if ('404 No' in text):
-                    f.write( filename + ',404' + '\n')
+                    f.write( strip_extension(filename) + ',401' + '\n')
+                elif ('404 No' in text):
+                    f.write( strip_extension(filename) + ',404' + '\n')
+                elif ('does not contain any stream' in text):
+                    f.write( strip_extension(filename) + ',No stream' + '\n')
                 else:
-                    f.write( filename + ',Good Stream' + '\n')
+                    f.write( strip_extension(filename) + ',Good Stream' + '\n')
 
 
 # for the files recorded above check if the video is black
@@ -84,25 +88,44 @@ def check_no_output():
             with open(blacklog + filename) as currentFile:
                 text = currentFile.read()
                 if ('blackdetect' in text):
-                    f.write( filename + ',Yes' + '\n')
+                    f.write( strip_extension(filename) + ',Yes' + '\n')
                 else:
-                    f.write( filename + ',No' + '\n')
+                    f.write( strip_extension(filename) + ',No' + '\n')
 
 
 # for the files recorded check if the video is pure static using a bash scripts and generate log file for every video
 def check_static_output():
-    subprocess.call(f"bash {static_check}", shell=True)
+    #subprocess.call(f"bash {static_check}", shell=True)
+    for video in listdir(videofiles):
+        logname = strip_extension(video) + ".log"
+        with open(staticlogs + logname, 'w') as logfile:
+            process = subprocess.Popen([
+                convert_location,
+                f"{videofiles}/{video}",
+                '-colorspace', 'HSL',
+                '-channel', 'S',
+                '-separate',
+                '-format', '%M avg sat=%[fx:int(mean*100)]\n',
+                "info:"
+            ], stdout=logfile)
+            # wait until Popen call finished
+            process.communicate()
+
+    for log in listdir(staticlogs):
+        remove_empty_lines(staticlogs + log)
+        remove_leading_lines(staticlogs + log, 200)
+
 
     # check if log files in the static log directory and read each file and generates a txt file to tell you if its static or not
-    with open(static_result, "w") as s:
-        s.write("Name," + "Is_Static" + '\n')
-        for filename in listdir(staticlog):
-            with open(staticlog + filename) as currentFile:
+    with open(static_results, "w") as f:
+        f.write("Name," + "Is_Static" + '\n')
+        for filename in listdir(staticlogs):
+            with open(staticlogs + filename) as currentFile:
                 text = currentFile.read()
                 if ('sat=0' in text):
-                    s.write( filename + ',Yes' + '\n')
+                    f.write( strip_extension(filename) + ',Yes' + '\n')
                 else:
-                    s.write( filename + ',No' + '\n')
+                    f.write( strip_extension(filename) + ',No' + '\n')
 
 
 def check_frozen_output():
@@ -120,15 +143,12 @@ def check_frozen_output():
             with open(frozenlog + filename) as currentFile:
                 text = currentFile.read()
                 if ('freezedetect' in text):
-                    f.write( filename + ',Yes' + '\n')
+                    f.write( strip_extension(filename) + ',Yes' + '\n')
                 else:
-                    f.write( filename + ',No' + '\n')
+                    f.write( strip_extension(filename) + ',No' + '\n')
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger('stderr')
-
     writer = pd.ExcelWriter(f"{persistent_location}/{output_file}")
 
     while True:
@@ -168,4 +188,6 @@ def main():
 if __name__ == "__main__":
     # so that it runs infinitely
     # TODO: differentiate between errors about input, working logs or output
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger('stderr')
     main()
