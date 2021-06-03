@@ -3,7 +3,7 @@ import subprocess
 import datetime
 import os
 import os.path
-from os import listdir, getenv, remove
+from os import listdir, getenv, remove, stat
 from time import sleep
 from sys import stderr
 import pandas as pd
@@ -164,14 +164,25 @@ def check_frozen_output():
 
 def main():
     writer = pd.ExcelWriter(f"{persistent_location}/{output_file}")
+    old_date = None
+    current_date = None
 
     while True:
         # clean up so that things don't stack
         cleanup(dirs_to_clean)
 
         # if the loop is skipped by exception, all following instructions (like sleep) would be skipped
+        # if there's a repeating failure, don't run at full blast erroring out
         sleep(1)
-        # critical for operation
+
+        try:
+            current_date = stat(csv_location).st_mtime
+        except FileNotFoundError:
+            logger.info(f"No {csv_location} found")
+            continue
+
+        if current_date == old_date:
+            continue
 
         print('checking streams')
         try:
@@ -200,6 +211,8 @@ def main():
             df = pd.read_csv(csv_files+csvs)
             df.to_excel(writer, sheet_name=csvs)
         writer.save()
+
+        old_date = current_date
 
 
 if __name__ == "__main__":
