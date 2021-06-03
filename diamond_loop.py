@@ -3,7 +3,7 @@ import subprocess
 import datetime
 import os
 import os.path
-from os import listdir, getenv
+from os import listdir, getenv, remove
 from time import sleep
 from sys import stderr
 import pandas as pd
@@ -28,14 +28,27 @@ black_results       = f"{persistent_location}/stream_results/no_output_result"
 frozen_results      = f"{persistent_location}/stream_results/frozen_results"
 static_results      = f"{persistent_location}/stream_results/static_results"
 
+dirs_to_clean       = [csv_files, videofiles, ffmpeglogs, blacklog, staticlogs, frozenlog]
+
 # external binaries
 bin_location        = f"/usr/bin"
 convert_location    = f"{bin_location}/convert"
 ffmpeg_location     = f"{bin_location}/ffmpeg"
 sed_location        = f"{bin_location}/sed"
+find_location       = f"{bin_location}/find"
+grep_location       = f"{bin_location}/grep"
 
 #FIXME: make this configurable
 static_check        = f"/static_check.sh"
+
+def cleanup(directories):
+    for directory in directories:
+        for found_file in listdir(directory):
+            try:
+                remove(directory + found_file)
+            except FileNotFoundError as e:
+                logger.warning(f"Couldn't delete file {directory}{found_file} due to below exception:")
+                logger.warning(e)
 
 
 # Open the streams list csv file
@@ -55,6 +68,7 @@ def check_streams():
                 ffmpeg_instance = subprocess.Popen([ffmpeg_location, '-y', '-t', '10', '-i', row[1], stream_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 # sent output to ffmpeg log
                 ffmpeg_output.write(ffmpeg_instance.communicate()[1])
+
 
 # grab the rtsp errors from the log files we made above
 def get_rtsp_errors():
@@ -152,6 +166,9 @@ def main():
     writer = pd.ExcelWriter(f"{persistent_location}/{output_file}")
 
     while True:
+        # clean up so that things don't stack
+        cleanup(dirs_to_clean)
+
         # if the loop is skipped by exception, all following instructions (like sleep) would be skipped
         sleep(1)
         # critical for operation
