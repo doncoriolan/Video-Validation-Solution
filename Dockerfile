@@ -8,8 +8,9 @@ ARG output_sheet=diamond_sheet.xlsx
 ENV vvs_output_sheet=$output_sheet
 
 RUN apt update
-RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo
+RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo npm
 RUN python3 -m pip install wheel gunicorn flask
+RUN npm -g install imgclip
 
 # VVS
 COPY diamond_loop.py /diamond_loop.py
