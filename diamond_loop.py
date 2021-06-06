@@ -38,8 +38,6 @@ sed_location        = f"{bin_location}/sed"
 find_location       = f"{bin_location}/find"
 grep_location       = f"{bin_location}/grep"
 
-#FIXME: make this configurable
-static_check        = f"/static_check.sh"
 
 def cleanup(directories):
     for directory in directories:
@@ -109,7 +107,6 @@ def check_no_output():
 
 # for the files recorded check if the video is pure static using a bash scripts and generate log file for every video
 def check_static_output():
-    #subprocess.call(f"bash {static_check}", shell=True)
     for video in listdir(videofiles):
         logname = strip_extension(video) + ".log"
         with open(staticlogs + logname, 'w') as logfile:
