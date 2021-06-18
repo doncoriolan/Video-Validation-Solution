@@ -3,6 +3,8 @@ import os
 import sys
 import re
 import datetime
+import os.path
+from os import listdir
 
 current_time = datetime.datetime.now()
 
@@ -10,25 +12,28 @@ NMAPLOCATION = '/usr/bin/nmap'
 ffprobe_location = '/usr/bin/ffprobe'
 ffmpeg_location = '/usr/bin/ffmpeg'
 NMAPLOG = '/home/camerafinder/nmaplog'
-
-# Username and Password. We may have to pass this option is the UI. 
 usr = 'myuser'
 pwd = 'mypassword'
+camfindlogs = '/home/camerafinder/logs/'
+foundcams = '/home/camerafinder/results.txt'
 
-# This is where the client enters a subnet
+# ASK user to enter IP address
 print('Enter a Subnet. Example 172.28.12.0/24')
 IPADDR = input()
 
-# Run NMAP and send output to variable
+# RUN NMAP to find IPs that are online
 process = subprocess.run([NMAPLOCATION, '-sn', IPADDR], check=True, stdout=subprocess.PIPE, universal_newlines=True)
 output = process.stdout
 
-# IP REGEX. Grabs the IPs from the output
+# IP Address regex
 IPRegex = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
 ips = IPRegex.findall(output)
 print(ips)
 
-# Assigns each IP and password then assigns it to the URL. Then Runs FFMPEG against the URLS.
+# Camera URL REGEX
+urlRegex = re.compile((r'(\D{1,5}://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\S*)'))
+
+# For loop to put the IPs, username and password in the list
 for ip in ips:
     urls = [f'rtsp://{usr}:{pwd}@{ip}:554/cam/realmonitor?channel=1&subtype=0',
         f'rtsp://{ip}:554/live=2.2&username={usr}&password={pwd}',
@@ -85,5 +90,20 @@ for ip in ips:
     videoname = ('/home/camerafinder/logs/' + ip + current_time.strftime("%Y%m%d_%H%M%S") + '.mp4')
     with open(ffprobe_log, 'wb') as ffprobe_output:
         for url in urls:
+            # ffmpeg process 
             videoprocess = subprocess.Popen([ffmpeg_location, '-y', '-t', '10', '-i', url, videoname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             ffprobe_output.write(videoprocess.communicate()[1])
+
+# Function to read output from above and print the working camera URL.
+def find_live_cams():
+    with open(foundcams, "w") as s:
+        for filename in listdir(camfindlogs):
+            with open(camfindlogs + filename, 'r', encoding='latin1') as f:
+                for line in f.readlines():
+                    if 'Input #0' in line:
+                        print(line)
+                        results = urlRegex.findall(line)
+                        print(results)
+                    else:
+                        continue
+find_live_cams()
