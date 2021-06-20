@@ -9,6 +9,7 @@ from sys import stderr
 import pandas as pd
 import logging
 from file_management import strip_extension, remove_leading_lines, remove_empty_lines
+from network_checks import ping, ping_readout
 
 persistent_location = getenv('vvs_persistent_data')
 input_file = getenv('vvs_input_csv')
@@ -27,6 +28,7 @@ rtsp_results        = f"{persistent_location}/stream_results/rtsp_results"
 black_results       = f"{persistent_location}/stream_results/no_output_result"
 frozen_results      = f"{persistent_location}/stream_results/frozen_results"
 static_results      = f"{persistent_location}/stream_results/static_results"
+ping_results        = f"{persistent_location}/stream_results/ping_results"
 
 dirs_to_clean       = [csv_files, videofiles, ffmpeglogs, blacklog, staticlogs, frozenlog]
 
@@ -51,11 +53,14 @@ def cleanup(directories):
 
 # Open the streams list csv file
 def check_streams():
+    addresses = []
+
     with open(csv_location) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         next(csv_reader, None)  # skip the headers
         for row in csv_reader:
             ffmpeg_log = (ffmpeglogs + row[0]) # set the ffmpeg log to be named the stream name
+            addresses.append({'name': row[0], 'address': row[1]})
             # Open log file for writing
             with open(ffmpeg_log, 'wb') as ffmpeg_output: 
                 # Iterate through streams list
@@ -67,9 +72,19 @@ def check_streams():
                 # sent output to ffmpeg log
                 ffmpeg_output.write(ffmpeg_instance.communicate()[1])
 
+    return addresses
+
+def check_ping(addresses):
+    with open(ping_results, "w") as f:
+        f.write(",".join(["Name", "Lossiness", "Stability"]) + "\n")
+        for camera in addresses:
+            result = ping_readout(ping(camera['address']))
+
+            f.write(','.join([camera['name'], result[0], result[1]]) + "\n")
+
 
 # grab the rtsp errors from the log files we made above
-def get_rtsp_errors():
+def get_rtsp_errors(addresses):
     with open(rtsp_results, "w") as f:
         f.write("Name," + "RTSP_ERROR" + '\n')
         for filename in listdir(ffmpeglogs):
@@ -86,7 +101,7 @@ def get_rtsp_errors():
 
 
 # for the files recorded above check if the video is black
-def check_no_output():
+def check_no_output(addresses):
     for files in os.listdir(videofiles):
         black_log = (blacklog + files)
         with open(black_log, 'wb') as ffmpegblack_output:
@@ -106,7 +121,7 @@ def check_no_output():
 
 
 # for the files recorded check if the video is pure static using a bash scripts and generate log file for every video
-def check_static_output():
+def check_static_output(addresses):
     for video in listdir(videofiles):
         logname = strip_extension(video) + ".log"
         with open(staticlogs + logname, 'w') as logfile:
@@ -139,7 +154,7 @@ def check_static_output():
                     f.write( strip_extension(filename) + ',No' + '\n')
 
 
-def check_frozen_output():
+def check_frozen_output(addresses):
     # check if files recorded were frozen and put the output in a log file
     for files in os.listdir(videofiles):
         frozen_log = (frozenlog + files)
@@ -167,6 +182,7 @@ def main():
     while True:
         # clean up so that things don't stack
         cleanup(dirs_to_clean)
+        camera_addresses = []
 
         # if the loop is skipped by exception, all following instructions (like sleep) would be skipped
         # if there's a repeating failure, don't run at full blast erroring out
@@ -183,12 +199,13 @@ def main():
 
         print('checking streams')
         try:
-            check_streams()
+            camera_addresses = check_streams()
         except Exception as e:
             logger.error(e)
             continue
 
         stream_checks = {
+            "check_ping": check_ping,
             "get_rtsp_errors": get_rtsp_errors,
             "check_no_output": check_no_output,
             "check_static_output": check_static_output,
@@ -198,7 +215,7 @@ def main():
         for check in stream_checks:
             logger.info(f"trying {check}")
             try:
-                stream_checks[check]()
+                stream_checks[check](camera_addresses)
             except Exception as e:
                 logger.warning(f"Non-critical exception during {check}: {e}")
 

@@ -8,13 +8,14 @@ ARG output_sheet=diamond_sheet.xlsx
 ENV vvs_output_sheet=$output_sheet
 
 RUN apt update
-RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo npm
+RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo npm iputils-ping
 RUN python3 -m pip install wheel gunicorn flask
 RUN npm -g install imgclip
 
 # VVS
 COPY diamond_loop.py /diamond_loop.py
 COPY file_management.py /file_management.py
+COPY network_checks.py /network_checks.py
 
 # web UI
 COPY uploader /uploader
