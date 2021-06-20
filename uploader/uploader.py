@@ -14,6 +14,10 @@ output_sheet=getenv("vvs_output_sheet")
 
 landing_page = 'upload.html'
 
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
+
 @app.route('/')
 def upload():
     try: 

@@ -1,19 +1,17 @@
 <html>
   <head>
-    <title>CSV Upload</title>
+    <title>VVS</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}" >
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet"> 
   </head>
   <body>
     <div class="body_in_body">
-      <h1>System Check</h1>
+      <div class="horizontal_spread">
+        <img class="logo" src="{{ url_for('static',filename='styles/logo.png') }}">
+        <h1>Video Validation Solution</h1>
+      </div>
       <div class="form_layout">
-        <div class="form_box">
-          <h2>Results</h2>
-          <p>{{ output_message }}</p>
-          <form action = "/vvs_output.xlsx" method = "GET">
-            <button class="flat_button"><div class="button_text">Download</div></button>
-          </form>
-        </div>
         <div id="upload_input_box" class="form_box">
           <h2>CSV Upload</h2>
           <p id="file_selection">No file selected</p>
@@ -29,6 +27,13 @@
               <div class="button_text">Upload File</div>
             </label>
           </form>   
+        </div>
+        <div class="form_box">
+          <h2>Results</h2>
+          <p>{{ output_message }}</p>
+          <form action = "/vvs_output.xlsx" method = "GET">
+            <button class="flat_button"><div class="button_text">Download</div></button>
+          </form>
         </div>
       </div>
     </div>

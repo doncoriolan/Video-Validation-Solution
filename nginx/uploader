@@ -2,13 +2,13 @@ server {
     listen 80 default_server;
     server_name _;
 
+    location /vvs_output.xlsx {
+	alias /opt/vvs/sheet.xlsx;
+	add_header Content-disposition "attachment; filename=$1";
+    }
+
     location / {
 	include proxy_params;
 	proxy_pass http://unix:/tmp/uploader.sock;
-    }
-
-    location /vvs_output.xlsx {
-	alias /var/www/cache/sheet.xlsx;
-	add_header Content-disposition "attachment; filename=$1";
     }
 }
