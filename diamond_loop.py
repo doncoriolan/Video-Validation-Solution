@@ -65,7 +65,6 @@ def check_streams():
             with open(ffmpeg_log, 'wb') as ffmpeg_output: 
                 # Iterate through streams list
                 #for row in csv_reader:
-                print(row)
                 stream_output = (videofiles + row[0] + ".mpeg") # stream output variable
                 # Subprocess record 1 stream at a time & send the output t0 stdout & stdeer
                 ffmpeg_instance = subprocess.Popen([ffmpeg_location, '-y', '-t', '10', '-i', row[1], stream_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -90,10 +89,76 @@ def get_rtsp_errors(addresses):
         for filename in listdir(ffmpeglogs):
             with open(ffmpeglogs + filename) as currentFile:
                 text = currentFile.read()
-                if ('401 Un' in text):
+                if ('400 Ba' in text):
+                    f.write( strip_extension(filename) + ',400' + '\n')
+                elif ('401 Un' in text):
                     f.write( strip_extension(filename) + ',401' + '\n')
+                elif ('402 Pa' in text):
+                    f.write( strip_extension(filename) + ',402' + '\n')
+                elif ('403 Fo' in text):
+                    f.write( strip_extension(filename) + ',403' + '\n')
                 elif ('404 No' in text):
                     f.write( strip_extension(filename) + ',404' + '\n')
+                elif ('405 Me' in text):
+                    f.write( strip_extension(filename) + ',405' + '\n')
+                elif ('406 No' in text):
+                    f.write( strip_extension(filename) + ',406' + '\n')
+                elif ('407 Pr' in text):
+                    f.write( strip_extension(filename) + ',407' + '\n')
+                elif ('408 Re' in text):
+                    f.write( strip_extension(filename) + ',408' + '\n')
+                elif ('410 Go' in text):
+                    f.write( strip_extension(filename) + ',410' + '\n')
+                elif ('411 Le' in text):
+                    f.write( strip_extension(filename) + ',411' + '\n')
+                elif ('412 Pr' in text):
+                    f.write( strip_extension(filename) + ',412' + '\n')
+                elif ('413 Re' in text):
+                    f.write( strip_extension(filename) + ',413' + '\n')
+                elif ('414 Re' in text):
+                    f.write( strip_extension(filename) + ',414' + '\n')
+                elif ('415 Un' in text):
+                    f.write( strip_extension(filename) + ',415' + '\n')
+                elif ('451 Pa' in text):
+                    f.write( strip_extension(filename) + ',451' + '\n')
+                elif ('452 Co' in text):
+                    f.write( strip_extension(filename) + ',452' + '\n')
+                elif ('453 No' in text):
+                    f.write( strip_extension(filename) + ',453' + '\n')
+                elif ('454 Se' in text):
+                    f.write( strip_extension(filename) + ',454' + '\n')
+                elif ('455 Me' in text):
+                    f.write( strip_extension(filename) + ',455' + '\n')
+                elif ('456 He' in text):
+                    f.write( strip_extension(filename) + ',456' + '\n')
+                elif ('457 In' in text):
+                    f.write( strip_extension(filename) + ',457' + '\n')
+                elif ('458 Pa' in text):
+                    f.write( strip_extension(filename) + ',458' + '\n')
+                elif ('459 Ag' in text):
+                    f.write( strip_extension(filename) + ',459' + '\n')
+                elif ('460 On' in text):
+                    f.write( strip_extension(filename) + ',460' + '\n')
+                elif ('461 Un' in text):
+                    f.write( strip_extension(filename) + ',461' + '\n')
+                elif ('462 De' in text):
+                    f.write( strip_extension(filename) + ',462' + '\n')
+                elif ('463 Ke' in text):
+                    f.write( strip_extension(filename) + ',463' + '\n')
+                elif ('500 In' in text):
+                    f.write( strip_extension(filename) + ',500' + '\n')
+                elif ('501 No' in text):
+                    f.write( strip_extension(filename) + ',501' + '\n')
+                elif ('502 Ba' in text):
+                    f.write( strip_extension(filename) + ',502' + '\n')
+                elif ('503 Se' in text):
+                    f.write( strip_extension(filename) + ',503' + '\n')
+                elif ('504 Ga' in text):
+                    f.write( strip_extension(filename) + ',504' + '\n')
+                elif ('505 RT' in text):
+                    f.write( strip_extension(filename) + ',505' + '\n')
+                elif ('551 Op' in text):
+                    f.write( strip_extension(filename) + ',551' + '\n')
                 elif ('does not contain any stream' in text):
                     f.write( strip_extension(filename) + ',No stream' + '\n')
                 else:
@@ -181,6 +246,7 @@ def main():
 
     while True:
         # clean up so that things don't stack
+        logger.info('beginning cleanup')
         cleanup(dirs_to_clean)
         camera_addresses = []
 
@@ -188,6 +254,7 @@ def main():
         # if there's a repeating failure, don't run at full blast erroring out
         sleep(1)
 
+        logger.info(f'attempting to check current_date')
         try:
             current_date = stat(csv_location).st_mtime
         except FileNotFoundError:
@@ -197,7 +264,7 @@ def main():
         if current_date == old_date:
             continue
 
-        print('checking streams')
+        logger.info('checking streams')
         try:
             camera_addresses = check_streams()
         except Exception as e:
