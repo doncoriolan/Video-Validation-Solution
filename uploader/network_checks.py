@@ -14,6 +14,7 @@ def ping_readout(output):
     complete_failure = ("unreachable", "unreachable")
     if output[1]:
         logger.error("unknown error during ping")
+        logger.info(output)
         return complete_failure
     output_lines = output[0].decode('utf-8').split('\n')
 

@@ -40,12 +40,12 @@ chown -R www-data:www-data "$vvs_persistent_data"
 chmod -R 0770 "$vvs_persistent_data"
 
 # make the base executable
-chmod 0755 /diamond_loop.py
+chmod 0755 /uploader/diamond_loop.py
 
 # for correct placement of output spreadsheet
 
 cd "$vvs_persistent_data"
-sudo -Eu www-data python3 /diamond_loop.py >/opt/vvs/diamond_output.log 2>/opt/vvs/diamond_error.log &
+#sudo -Eu www-data python3 /uploader/diamond_loop.py >/opt/vvs/diamond_output.log 2>/opt/vvs/diamond_error.log &
 
 sleep 2
 
@@ -53,7 +53,7 @@ sleep 2
 service nginx start
 
 # for file verification
-sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /uploader  --workers 1 --bind unix:/tmp/uploader.sock -m 007 --log-file=/tmp/gunicorn.log wsgi:app
+sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /uploader  --workers 1 --bind unix:/tmp/uploader.sock -m 007 --log-file=/tmp/gunicorn.log --log-level debug --enable-stdio-inheritance wsgi:app
 
 # default bash shell
 cd /opt/vvs

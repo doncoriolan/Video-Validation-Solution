@@ -12,11 +12,6 @@ RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libf
 RUN python3 -m pip install wheel gunicorn flask
 RUN npm -g install imgclip
 
-# VVS
-COPY diamond_loop.py /diamond_loop.py
-COPY file_management.py /file_management.py
-COPY network_checks.py /network_checks.py
-
 # web UI
 COPY uploader /uploader
 COPY nginx/uploader /etc/nginx/sites-available/default
