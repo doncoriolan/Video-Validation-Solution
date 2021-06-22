@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import csv
 import subprocess
 import datetime
@@ -15,6 +17,7 @@ persistent_location = getenv('vvs_persistent_data')
 input_file = getenv('vvs_input_csv')
 #FIXME:utilise this for output
 output_file = getenv('vvs_output_sheet')
+
 
 # only one directory currently planned to be persistent
 csv_location        = f"{persistent_location}/{input_file}"
@@ -241,64 +244,61 @@ def check_frozen_output(addresses):
 
 def main():
     writer = pd.ExcelWriter(f"{persistent_location}/{output_file}")
-    old_date = None
-    current_date = None
+    #old_date = None
+    #current_date = None
 
-    while True:
-        # clean up so that things don't stack
-        logger.info('beginning cleanup')
-        cleanup(dirs_to_clean)
-        camera_addresses = []
+    #while True:
+    # clean up so that things don't stack
+    logger.info('beginning cleanup')
+    cleanup(dirs_to_clean)
+    camera_addresses = []
 
-        # if the loop is skipped by exception, all following instructions (like sleep) would be skipped
-        # if there's a repeating failure, don't run at full blast erroring out
-        sleep(1)
+    # if the loop is skipped by exception, all following instructions (like sleep) would be skipped
+    # if there's a repeating failure, don't run at full blast erroring out
+    #sleep(1)
 
-        logger.info(f'attempting to check current_date')
+    #logger.info(f'attempting to check current_date')
+    #try:
+    #    current_date = stat(csv_location).st_mtime
+    #except FileNotFoundError:
+    #    logger.info(f"No {csv_location} found")
+    #    continue
+
+    #if current_date == old_date:
+    #    continue
+
+    logger.info('checking streams')
+    try:
+        camera_addresses = check_streams()
+    except Exception as e:
+        logger.error(e)
+        sys.exit(1)
+
+    stream_checks = {
+        "check_ping": check_ping,
+        "get_rtsp_errors": get_rtsp_errors,
+        "check_no_output": check_no_output,
+        "check_static_output": check_static_output,
+        "check_frozen_output": check_frozen_output
+    }
+
+    for check in stream_checks:
+        logger.info(f"trying {check}")
         try:
-            current_date = stat(csv_location).st_mtime
-        except FileNotFoundError:
-            logger.info(f"No {csv_location} found")
-            continue
-
-        if current_date == old_date:
-            continue
-
-        logger.info('checking streams')
-        try:
-            camera_addresses = check_streams()
+            stream_checks[check](camera_addresses)
         except Exception as e:
-            logger.error(e)
-            continue
+            logger.warning(f"Non-critical exception during {check}: {e}")
 
-        stream_checks = {
-            "check_ping": check_ping,
-            "get_rtsp_errors": get_rtsp_errors,
-            "check_no_output": check_no_output,
-            "check_static_output": check_static_output,
-            "check_frozen_output": check_frozen_output
-        }
+    # exceptions during sheet output are critical, to the point the program becomes pointless
+    # forceful exit preferred
+    for csvs in os.listdir(csv_files):
+        df = pd.read_csv(csv_files+csvs)
+        df.to_excel(writer, sheet_name=csvs)
+    writer.save()
 
-        for check in stream_checks:
-            logger.info(f"trying {check}")
-            try:
-                stream_checks[check](camera_addresses)
-            except Exception as e:
-                logger.warning(f"Non-critical exception during {check}: {e}")
-
-        # exceptions during sheet output are critical, to the point the program becomes pointless
-        # forceful exit preferred
-        for csvs in os.listdir(csv_files):
-            df = pd.read_csv(csv_files+csvs)
-            df.to_excel(writer, sheet_name=csvs)
-        writer.save()
-
-        old_date = current_date
+    #old_date = current_date
 
 
 if __name__ == "__main__":
-    # so that it runs infinitely
-    # TODO: differentiate between errors about input, working logs or output
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger('stderr')
+    logger = logging.getLogger('gunicorn.error')
     main()

@@ -16,6 +16,7 @@
           <h2>CSV Upload</h2>
           <p id="file_selection">No file selected</p>
           <script src="{{ url_for('static',filename='scripts/validation.js') }}"></script>
+          <script src="{{ url_for('static',filename='scripts/analysis_notifications.js') }}"></script>
           <form action = "/uploader" method = "POST" 
             enctype = "multipart/form-data">
             <input class="flat_button" id="file_upload" type="file" name="file" accept=".csv" aria-label="CSV Select" oninput="validateFileSelection()" />
@@ -28,9 +29,9 @@
             </label>
           </form>   
         </div>
-        <div class="form_box">
+        <div id="download_box" class="form_box">
           <h2>Results</h2>
-          <p>{{ output_message }}</p>
+          <p id="result_message">{{ result_message }}</p>
           <form action = "/vvs_output.xlsx" method = "GET">
             <button class="flat_button"><div class="button_text">Download</div></button>
           </form>
