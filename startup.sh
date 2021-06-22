@@ -29,6 +29,7 @@ fi
 mkdir -p "$vvs_persistent_data"/;
 mkdir -p "$vvs_persistent_data"/stream_results/;
 mkdir -p "$vvs_persistent_data"/videofiles/;
+mkdir -p "$vvs_persistent_data"/imagefiles/;
 mkdir -p "$vvs_persistent_data"/blacklog/;
 mkdir -p "$vvs_persistent_data"/frozenlog/;
 mkdir -p "$vvs_persistent_data"/staticlogs/;
