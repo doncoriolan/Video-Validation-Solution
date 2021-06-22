@@ -7,6 +7,9 @@ logger = logging.getLogger('stderr')
 
 def ping(address):
     netloc = urlparse(address).netloc
+    port = urlparse(address).port
+    if port:
+        netloc = netloc.replace(f":{port}", "")
     ping_process = subprocess.Popen(['/usr/bin/ping', '-c10', '-i0.2', '-W1', netloc], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return ping_process.communicate()
 

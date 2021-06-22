@@ -23,6 +23,7 @@ output_file = getenv('vvs_output_sheet')
 csv_location        = f"{persistent_location}/{input_file}"
 csv_files           = f"{persistent_location}/stream_results/"
 videofiles          = f"{persistent_location}/videofiles/"
+imagefiles          = f"{persistent_location}/imagefiles/"
 ffmpeglogs          = f"{persistent_location}/ffmpeglog/"
 blacklog            = f"{persistent_location}/blacklog/"
 staticlogs          = f"{persistent_location}/staticlogs/"
@@ -33,7 +34,7 @@ frozen_results      = f"{persistent_location}/stream_results/frozen_results"
 static_results      = f"{persistent_location}/stream_results/static_results"
 ping_results        = f"{persistent_location}/stream_results/ping_results"
 
-dirs_to_clean       = [csv_files, videofiles, ffmpeglogs, blacklog, staticlogs, frozenlog]
+dirs_to_clean       = [csv_files, videofiles, ffmpeglogs, blacklog, staticlogs, frozenlog, imagefiles]
 
 # external binaries
 bin_location        = f"/usr/bin"
@@ -162,9 +163,20 @@ def get_rtsp_errors(addresses):
                     f.write( strip_extension(filename) + ',505' + '\n')
                 elif ('551 Op' in text):
                     f.write( strip_extension(filename) + ',551' + '\n')
+                elif ('failed:' in text):
+                    f.write( strip_extension(filename) + ',Failed to download stream' + '\n')
+                elif ('Connection refused' in text):
+                    f.write( strip_extension(filename) + ',Connection refused' + '\n')
+                elif ('Protocol not found' in text):
+                    f.write( strip_extension(filename) + ',Invalid protocol' + '\n')
                 elif ('does not contain any stream' in text):
                     f.write( strip_extension(filename) + ',No stream' + '\n')
+                elif ('Invalid data found when processing input' in text):
+                    f.write( strip_extension(filename) + ',Invalid data' + '\n')
+                elif ('Cannot read RTMP handshake response' in text):
+                    f.write( strip_extension(filename) + ',RTMP handshake failed' + '\n')
                 else:
+                    #FIXME: check if the video file exists
                     f.write( strip_extension(filename) + ',Good Stream' + '\n')
 
 
@@ -191,11 +203,21 @@ def check_no_output(addresses):
 # for the files recorded check if the video is pure static using a bash scripts and generate log file for every video
 def check_static_output(addresses):
     for video in listdir(videofiles):
-        logname = strip_extension(video) + ".log"
+        logger.info(video)
+        basename = strip_extension(video)
+        logname = basename + ".log"
+        # done as a PNG to prevent further lossiness making an image that's too close to static noise for ImageMagick
+        imagename = basename + ".png"
+        #FIXME: generate image to check 
+        process = subprocess.Popen([ffmpeg_location, "-ss", "5", "-i", f"{videofiles}/{video}", "-frames:v", "1", f"{imagefiles}/{imagename}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+        logger.info(f"stdout: {output}")
+        logger.info(f"stderr: {error}")
+
         with open(staticlogs + logname, 'w') as logfile:
             process = subprocess.Popen([
                 convert_location,
-                f"{videofiles}/{video}",
+                f"{imagefiles}/{imagename}",
                 '-colorspace', 'HSL',
                 '-channel', 'S',
                 '-separate',
@@ -300,5 +322,6 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger('gunicorn.error')
+    logging.basicConfig(filename=f"{persistent_location}/diamond.log", level=logging.DEBUG)
+    logger = logging.getLogger('diamond.log')
     main()
