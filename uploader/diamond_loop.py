@@ -185,7 +185,8 @@ def check_no_output(addresses):
     for files in os.listdir(videofiles):
         black_log = (blacklog + files)
         with open(black_log, 'wb') as ffmpegblack_output:
-            ffmpeg_blackdetect = subprocess.Popen([ffmpeg_location, '-i', videofiles+files, '-vf', 'blackdetect=d=2:pix_th=0.00', '-an', '-f', 'null', '-'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # Black detect d set the durations we want to find and pix_th sets the level of black. 0 is pure black and 1 a little black
+            ffmpeg_blackdetect = subprocess.Popen([ffmpeg_location, '-i', videofiles+files, '-vf', 'blackdetect=d=2:pix_th=.15', '-an', '-f', 'null', '-'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             ffmpegblack_output.write(ffmpeg_blackdetect.communicate()[1])
 
     # looks at the log output from the blackdetect and generates a csv to tell you if its dark or not
