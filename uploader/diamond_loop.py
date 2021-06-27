@@ -69,7 +69,7 @@ def check_streams():
             with open(ffmpeg_log, 'wb') as ffmpeg_output: 
                 # Iterate through streams list
                 #for row in csv_reader:
-                stream_output = (videofiles + row[0] + ".mpeg") # stream output variable
+                stream_output = (videofiles + row[0] + ".mp4") # stream output variable
                 # Subprocess record 1 stream at a time & send the output t0 stdout & stdeer
                 ffmpeg_instance = subprocess.Popen([ffmpeg_location, '-y', '-t', '10', '-i', row[1], stream_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 # sent output to ffmpeg log
