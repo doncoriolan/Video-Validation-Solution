@@ -3,7 +3,8 @@ set -o xtrace
 
 # change alias for download link (nginx) since it's not configured dynamically and i don't know a better way
 nginx_config="/etc/nginx/sites-available/default"
-sed -i "s#alias .*;#alias ${vvs_persistent_data}/${vvs_output_sheet};#" "$nginx_config"
+sed -i "s#alias analysis.*;#alias ${vvs_persistent_data}/${vvs_analyzer_output};#" "$nginx_config"
+sed -i "s#alias search.*;#alias ${vvs_persistent_data}/${vvs_explorer_output};#" "$nginx_config"
 if [ -n "$domain_name" ]; then
 	sed -i "s#server_name .*;#server_name ${domain_name};#" "$nginx_config"
 fi
@@ -41,20 +42,21 @@ chown -R www-data:www-data "$vvs_persistent_data"
 chmod -R 0770 "$vvs_persistent_data"
 
 # make the base executable
-chmod 0755 /uploader/diamond_loop.py
+chmod 0755 /analysis/diamond_loop.py
+chmod 0755 /analysis/find_cameras.py
 
 # for correct placement of output spreadsheet
 
-cd "$vvs_persistent_data"
-#sudo -Eu www-data python3 /uploader/diamond_loop.py >/opt/vvs/diamond_output.log 2>/opt/vvs/diamond_error.log &
+#cd "$vvs_persistent_data"
+#sudo -Eu www-data python3 /ui/diamond_loop.py >/opt/vvs/diamond_output.log 2>/opt/vvs/diamond_error.log &
 
-sleep 2
+#sleep 2
 
 # start nginx
 service nginx start
 
 # for file verification
-sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /uploader  --workers 1 --bind unix:/tmp/uploader.sock -m 007 --log-file=/tmp/gunicorn.log --log-level debug --enable-stdio-inheritance wsgi:app
+sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /ui  --workers 1 --bind unix:/tmp/ui.sock -m 007 --log-file=/tmp/gunicorn.log --log-level debug --enable-stdio-inheritance wsgi:app
 
 # default bash shell
 cd /opt/vvs

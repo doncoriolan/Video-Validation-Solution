@@ -13,7 +13,6 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  vertical-align: middle;
 }
 
 h1 {
@@ -26,7 +25,6 @@ h1 {
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
-  vertical-align: middle;
 }
 
 .logo {
@@ -35,14 +33,14 @@ h1 {
 
 .body_in_body {
   margin: auto;
-  width: 40%;
+  width: 50%;
   height: auto;
-  vertical-align: middle;
   min-width: 400px;
 }
 .form_layout {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  margin: 15px;
   gap: 15px;
 }
 .form_box {
@@ -62,7 +60,6 @@ h1 {
 }
 .form_box h2 {
   margin: auto;
-  vertical-align: middle;
   text-align: center;
   padding: 5px;
 }
@@ -88,13 +85,27 @@ h1 {
 }
 .form_box_error h2 {
   margin: auto;
-  vertical-align: middle;
   text-align: center;
   padding: 5px;
 }
 .form_box_error form {
   display: flex;
   justify-content: space-evenly;
+}
+.results_box {
+  background-color: White;
+  width: 100%;
+  min-width: 150px;
+  height: auto;
+  margin: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  border: none;
+  border-radius: 1px;
+  border-color: Black;
+  gap: 0px;
 }
 
 .flat_button,
@@ -122,6 +133,10 @@ h1 {
   outline: 1px dashed #000;
 }
 
+.back_button_form {
+  margin: 20;
+}
+
 .button_text {
   /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
   font-size: large;
@@ -137,4 +152,13 @@ input[type="submit"] {
 	overflow: hidden;
 	position: absolute;
 	z-index: -1;
+}
+
+.table_container {
+  margin-left: auto;
+  margin-right: auto;
+  background: White;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }

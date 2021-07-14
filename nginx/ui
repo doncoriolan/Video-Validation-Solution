@@ -1,0 +1,21 @@
+server {
+    auth_basic "Authorised Site";
+    auth_basic_user_file /ui/logins;
+    listen 80 default_server;
+    server_name _;
+
+    location /analysis_output.xlsx {
+	alias analysis;
+	add_header Content-disposition "attachment; filename=$1";
+    }
+
+    location /search_output.xlsx {
+        alias search;
+        add_header Content-disposition "attachment; filename=$1";
+    }
+
+    location / {
+	include proxy_params;
+	proxy_pass http://unix:/tmp/ui.sock;
+    }
+}

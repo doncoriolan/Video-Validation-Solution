@@ -2,19 +2,23 @@ FROM mc587/vvs-ubuntu
 
 ARG persistent_data=/opt/vvs
 ENV vvs_persistent_data=$persistent_data
-ARG input_csv=streams.csv
-ENV vvs_input_csv=$input_csv
-ARG output_sheet=diamond_sheet.xlsx
-ENV vvs_output_sheet=$output_sheet
+ARG analyzer_input=streams.csv
+ENV vvs_analyzer_input=$analyzer_input
+ARG analyzer_output=diamond_sheet.xlsx
+ENV vvs_analyzer_output=$analyzer_output
+ARG explorer_output=search.xlsx
+ENV vvs_explorer_output=$explorer_output
 
 RUN apt update
-RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo npm iputils-ping
-RUN python3 -m pip install wheel gunicorn flask
-RUN npm -g install imgclip
+RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo iputils-ping nmap
+RUN python3 -m pip install wheel gunicorn flask python-nmap pandas requests
+#RUN npm -g install imgclip
 
 # web UI
-COPY uploader /uploader
-COPY nginx/uploader /etc/nginx/sites-available/default
+COPY ui /ui
+COPY nginx/ui /etc/nginx/sites-available/default
+# analysis scripts
+COPY analysis /analysis
 
 COPY startup.sh /startup.sh
 

@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <title>Search Results</title>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/main.css') }}" >
+      <link rel="preconnect" href="https://fonts.gstatic.com">
+      <link href="https://fonts.googleapis.com/css2?family=Titillium+Web&display=swap" rel="stylesheet">
+    </head>
+  <body>
+    <div class="body_in_body">
+      <h1>Camera Search Results</h1>
+        <div class="form_layout">
+          <div class="results_box">
+            <div class="horizontal_spread">
+              <form class="back_button_form" action = "/" method = "GET">
+                <button class="flat_button"><div class="button_text">Back</div></button>
+              </form>
+            </div>
+            {{ table }}
+            <div class="horizontal_spread">
+              <form class="back_button_form" action = "/" method = "GET">
+                <button class="flat_button"><div class="button_text">Back</div></button>
+              </form>
+            </div>
+          </div>
+        </div>
+    </div>
+  </body>
+</html>
