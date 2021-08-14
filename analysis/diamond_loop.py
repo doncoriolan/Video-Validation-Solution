@@ -250,7 +250,7 @@ def main():
 
 # putting the checks here allows them to be exportable through modules and hooked up to relevant functions
 critical_checks = {
-    "rtsp_errors": get_rtsp_errors,
+    "rtsp_error": get_rtsp_errors,
     "no_output_check": check_no_output,
     "static_output_check": check_static_output,
     "frozen_output_check": check_frozen_output,

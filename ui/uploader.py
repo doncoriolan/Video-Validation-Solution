@@ -87,27 +87,16 @@ def initiate_search():
         return render_template('success.html')
 
 def analysis_results_colorcoding(row):
-    row_width = len(list(critical_checks) + list(non_critical_checks)) + 1 # + name
-    failed = False
-    row_colors = ['']
-    for check in critical_checks:
-        if row[check] != 'No':
-            failed = True
-            row_colors.append(status['red'])
-            continue
-        row_colors.append('')
-    row_colors.append('')
-    if failed:
-        logger.info(row_colors)
-        return row_colors
+    # only printing name and RTSP error
+    if row['rtsp_error'] == "No":
+        return [status['green']]*2 #*row_width just displaying name & rtsp error
     else:
-        logger.info(row_width)
-        return [status['green']]*row_width
+        return [status['red']]*2
 
 @app.route('/analysis_results', methods = ['GET'])
 def show_analysis_results():
     try:
-        excel_file = pandas.read_excel(locations['analyzer_output_file'])
+        excel_file = pandas.read_excel(locations['analyzer_output_file'])[['name','rtsp_error']]
         logger.info('file opened')
         styled_table = excel_file.style.apply(analysis_results_colorcoding, axis=1)
         return render_template('results.html', table=Markup(styled_table.render()))
