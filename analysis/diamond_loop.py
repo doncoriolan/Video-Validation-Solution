@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# Main Script for the Video Validation Solution. The purpose of this script is to record video and run specific checks on the video.
+# Copyright of Mike Coriolan.
 
 import csv
 import subprocess
