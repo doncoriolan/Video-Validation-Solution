@@ -26,7 +26,7 @@ Configuration is mostly done by files being present or not in persistent storage
 # Deployment
 
 1. Obtain a VPS connected to the internet, allow inbound TCP 80 & TCP 443, get a [PAT](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and [configure](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) it
-1. Pull docker image can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container)
+1. Pull docker image, the link for which can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container)
 1. Create persistent storage with the command `docker volume create persistent_data`, the name of the volume can be changed but needs to be kept consistent in later steps
 1. Create a logins file with the command `htpasswd -c logins <user>` defining a username in the command and putting the password in the interactive prompts. The file needs to be placed in the persistent storage from the host, by default under /var/lib/docker/volumes/<name>/_data/logins
 1. If necessary, place ssl certificates in <persistent>/ssl/certificate and <persistent>/ssl/key for the certificate and key respectively
