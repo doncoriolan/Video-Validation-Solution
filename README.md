@@ -29,6 +29,6 @@ Configuration is mostly done by files being present or not in persistent storage
 1. Pull docker image, the link for which can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container)
 1. Create persistent storage with the command `docker volume create persistent_data`, the name of the volume can be changed but needs to be kept consistent in later steps
 1. Create a logins file with the command `htpasswd -c logins <user>` defining a username in the command and putting the password in the interactive prompts. The file needs to be placed in the persistent storage from the host, by default under /var/lib/docker/volumes/<name>/_data/logins
-1. If necessary, place ssl certificates in <<persistent>>/ssl/certificate and <<persistent>>/ssl/key for the certificate and key respectively
+1. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
 1. Image can now be tested using `sudo docker run -p80:80 -p443:443 --mount source=persistent_data,target=/opt/vvs -it <image id>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
 1. Once successfully tested the container can be started headless
