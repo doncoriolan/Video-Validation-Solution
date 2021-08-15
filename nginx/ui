@@ -1,6 +1,6 @@
 server {
     auth_basic "Authorised Site";
-    auth_basic_user_file /ui/logins;
+    auth_basic_user_file /opt/vvs/logins;
     listen 80 default_server;
     server_name _;
 
