@@ -50,4 +50,5 @@ Currently, the logging level is hardcoded to DEBUG during development and can be
 - INFO: 20
 - DEBUG: 10
 - NOTSET: 0
+
 The numerically lower levels will print more information.
