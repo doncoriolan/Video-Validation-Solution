@@ -43,4 +43,11 @@ The main log files can be found at:
   - Gunicorn: /tmp/gunicorn.log
   - Nginx: /var/log/nginx/{access.log, error.log}
   
-Currently, the logging level is hardcoded to DEBUG during development and can be defined in startup.sh for Gunicorn as well as inside the two Python scripts.
+Currently, the logging level is hardcoded to DEBUG during development and can be defined in startup.sh for Gunicorn as well as inside the two Python scripts. From the Python logging documentation, the levels are as follows:
+CRITICAL: 50
+ERROR: 40
+WARNING: 30
+INFO: 20
+DEBUG: 10
+NOTSET: 0
+The numerically lower levels will print more information.
