@@ -32,3 +32,15 @@ Configuration is mostly done by files being present or not in persistent storage
 1. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
 1. Image can now be tested using `sudo docker run -p80:80 -p443:443 --mount source=persistent_data,target=/opt/vvs -it <image id>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
 1. Once successfully tested the container can be started headless
+  
+# Troubleshooting
+
+Short of knowing what the problem is ahead of time, troubleshooting most likely involves tracing an error found in one of the below log files to bad data, bad code or both. Gunicorn logs will show errors from the Web backend, the analysis and search scripts have their own logs and Nginx will show errors with proxying, SSL and logins. For the frontend, it's a combination of figuring out where data in it was broken and looking at the broswer development tools (usually F12) for console logging.
+  
+The main log files can be found at:
+  - diamond_loop.py: /opt/vvs/diamond.log
+  - find_cameras.py: /opt/vvs/finder.log
+  - Gunicorn: /tmp/gunicorn.log
+  - Nginx: /var/log/nginx/{access.log, error.log}
+  
+Currently, the logging level is hardcoded to DEBUG during development and can be defined in startup.sh for Gunicorn as well as inside the two Python scripts.
