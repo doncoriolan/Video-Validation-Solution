@@ -5,6 +5,7 @@ import nmap
 from urllib.parse import urlparse
 import requests
 
+# list of most common ports we can use to check if the address is for a camera
 extended_port_list=[
     "80",
     "81",
@@ -53,6 +54,14 @@ def ping(address):
     return ping_process.communicate()
 
 def ping_readout(output):
+    """Utility function for qualifying the ping results.
+
+    The two verbs output are to describe the packet loss (if) present
+    and the deviation of return times. This is, however, inherently
+    flawed since most network admins will either block ICMP outright or
+    deprioritise pings to the point where they mostly indicate if the
+    network is congested.
+    """
     if output[1]:
         logger.error("unknown error during ping")
         logger.info(output)
@@ -87,6 +96,11 @@ def ping_readout(output):
 
 
 def nmap_port_scan(subnet, ports='554'):
+    """Nmap wrapper to port-scan addresses.
+
+    Uses a subnet and either single or a list of ports to scan for each
+    address in the subnet. For now it is TCP only.
+    """
 
     scanner = nmap.PortScanner()
     results = {}
@@ -101,7 +115,11 @@ def nmap_port_scan(subnet, ports='554'):
     return results
 
 def camera_check(address, port):
-    #will need https checks as well
+    """Simple initial placeholder
+
+    This function looks for common terms used in welcome pages for
+    cameras. There are other indicators but they are yet to be used.
+    """
     try:
         r = requests.get(f"http://{address}:{port}")
         keywords = ["camera", "video", "user interface"]
