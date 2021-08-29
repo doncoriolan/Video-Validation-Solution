@@ -22,22 +22,12 @@ def main():
     subnet_validated = ip_regex.findall(args['subnet'])
 
     results = nmap_port_scan(subnet_validated.pop(), extended_ports)
+    logger.info(results)
+    camera_finder_results = {}
+    for ip in results.keys():
+        camera_finder_results[ip] = camera_check(ip)
 
-    #TODO: list closed, check open using the common URLs, print IP w/ result
-    #FIXME: use DataFrames and export to excel instead
-    data = []
-    for address in results.keys():
-        if results[address]:
-            check_result = False
-            for port in results[address]:
-                check_result = camera_check(address, port)
-                if check_result:
-                    break
-            data.append([address, str(results[address]), check_result])
-        else:
-            data.append([address, "None", "No"])
-
-    parsed_data = pd.DataFrame(data=data, columns=['address', 'open ports', 'likely camera'])
+    parsed_data = pd.DataFrame.from_dict(camera_finder_results, orient='index')
     logger.info(parsed_data)
     parsed_data.to_excel(locations['explorer_output_file'], index=False)
 
