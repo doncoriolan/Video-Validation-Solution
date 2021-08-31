@@ -4,6 +4,9 @@ import logging
 import nmap
 from urllib.parse import urlparse
 import requests
+import timeit
+import datetime
+current_time = datetime.datetime.now()
 
 # list of most common ports we can use to check if the address is for a camera
 extended_port_list=[
@@ -114,19 +117,29 @@ def nmap_port_scan(subnet, ports='554'):
 
     return results
 
-def camera_check(address, port):
-    """Simple initial placeholder
 
-    This function looks for common terms used in welcome pages for
-    cameras. There are other indicators but they are yet to be used.
-    """
-    try:
-        r = requests.get(f"http://{address}:{port}")
-        keywords = ["camera", "video", "user interface"]
+def camera_check(address):
+    actual_cams = []
+    urls = [f'http://{address}/mjpg/video.mjpg',
+        f'rtsp://{address}/mpeg4/media.amp',
+        f'rtsp://{address}/axis-media/media.amp?',
+        f'rtsp://{address}/onvif-media/media.amp',
+        f'http://{address}/axis-cgi/mjpg/video.cgi',
+        f'rtsp://{address}/ucast/12',
+        f'http://{address}/mjpg/1/video.mjpg?Axis-Orig-Sw=true',
+        f'http://{address}/stream.asf',
+        f'http://{address}/mjpg/1/video.mjpg',
+        f'rtsp://{address}/mpeg4',
+        ]
+    videoname = ('/opt/vvs/videofiles/' + address + current_time.strftime("%Y%m%d_%H%M%S") + '.mp4')
+    for url in urls:
+        # ffmpeg process 
+        videoprocess = subprocess.Popen(['/usr/bin/ffmpeg', '-y', '-t', '1', '-i', url, videoname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        ffmpeg_output = videoprocess.communicate()
+        while videoprocess.poll() is None:
+            time.sleep(0.5)
+        rc = videoprocess.returncode
+        if rc == 0:
+            actual_cams.append({'Working URLS': url})
 
-        for keyword in keywords:
-            if keyword in r.text:
-                return True
-        return False
-    except:
-        return False
+        return actual_cams
