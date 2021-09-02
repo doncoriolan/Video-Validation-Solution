@@ -103,10 +103,21 @@ def initiate_search():
         if explorer_check()['state'] == "running":
             return render_template('error.html', title="Scheduling Error", message="Search already running")
 
-        logger.debug(request.form['explorer_input'])
+        logger.debug(request.form)
         #return render_template('error.html', title="Stop", message="exited")
         global explorer_instance
-        explorer_instance = subprocess.Popen(['/analysis/find_cameras.py', request.form['explorer_input']], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        command = [
+            '/analysis/finding_cameras.py',
+            request.form['explorer_manufacturer'],
+            request.form['explorer_subnet']
+        ]
+        if ('username' in request.form) and ('password' in request.form):
+            command.append(request.form['explorer_user'])
+            command.append(request.form['explorer_pass'])
+        logger.debug(command)
+        #TODO: implement server side validation (as opposed to validating it inside finding_cameras.py)
+        #      to ensure users can see what failed if something is mistyped
+        explorer_instance = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         return render_template('success.html')
 
@@ -132,17 +143,18 @@ def show_analysis_results():
         logger.exception("Failed to serve analysis results")
 
 def search_results_colorcoding(row):
-    if row['open ports'] == 'None':
-        return ['background-color: Salmon;']*3
+    width = 2
+    if row['result'] == 'Not camera':
+        return ['background-color: Salmon;']*width
     elif row['likely camera']:
-        return ['background-color: LightGreen;']*3
+        return ['background-color: LightGreen;']*width
     else:
-        return ['background-color: LightGoldenrodYellow;']*3
+        return ['background-color: LightGoldenrodYellow;']*width
 
 @app.route('/search_results', methods = ['GET'])
 def show_search_results():
     try:
-        excel_file = pandas.read_excel(locations['explorer_output_file'])
+        excel_file = pandas.read_excel(locations['explorer_output_file']).replace(pandas.np.nan, 'Not camera', regex=True)
         logger.info('file opened')
         logger.info(f"excel_file: {excel_file}")
         styled_table = excel_file.style.apply(search_results_colorcoding, axis=1)

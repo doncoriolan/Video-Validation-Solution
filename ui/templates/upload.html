@@ -51,10 +51,34 @@
         <div id="explorer" class="form_box">
           <h2>Camera Search</h2>
           <p>Input the subnet to search for cameras</p>
-          <form action="/explorer" method="POST">
-            <input class="flat_line" id="search_subnet" name="explorer_input" type="text" aria-label="Search Subnet" placeholder="127.0.0.1/24" />
+          <form action="/explorer" method="POST" style="flex-wrap: wrap; row-gap: 10%;" >
+            <input class="flat_line" id="search_user" name="explorer_user" type="text" aria-label="Search User" placeholder="optional username" />
+            <label for="search_user">
+            </label>
+            <input class="flat_line" id="search_pass" name="explorer_pass" type="text" aria-label="Search Password" placeholder="optional password" />
+            <label for="search_pass">
+            </label>
+            <div class="break"></div>
+            <input class="flat_line" id="search_subnet" name="explorer_subnet" type="text" aria-label="Search Subnet" placeholder="127.0.0.1/24" />
             <label for="search_subnet">
             </label>
+            <select id="manufacturer" name="explorer_manufacturer">
+              <option value="axis">Axis</option>
+              <option value="sony">Sony</option>
+              <option value="bosch">Bosch</option>
+              <option value="hikvision">Hikvision</option>
+              <option value="avigilon">Avigilon</option>
+              <option value="panasonic">Panasonic</option>
+              <option value="mobotix">Mobotix</option>
+              <option value="cohu">Cohu</option>
+              <option value="wti">WTI</option>
+              <option value="iqeye">IQEYE</option>
+              <option value="pelco">Pelco</option>
+              <option value="flir">Flir</option>
+              <option value="univision">Univision</option>
+              <option value="vicon">Vicon</option>
+              <option value="geovision">Geovision</option>
+            </select>
             <input class="flat_button" id="search_trigger" type="submit" aria-label="Initiate search" />
             <label for="search_trigger">
               <div class="button_text">Initiate Search</div>

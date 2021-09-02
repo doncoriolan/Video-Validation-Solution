@@ -118,19 +118,18 @@ def nmap_port_scan(subnet, ports='554'):
     return results
 
 
+def nmap_ping_scan(subnet):
+    scanner = nmap.PortScanner()
+    scanner.scan(hosts=subnet, arguments='-n -sn')
+    reachable_hosts = [x for x in scanner.all_hosts() if scanner[x]['status']['state'] == 'up']
+    unreachable_hosts = [x for x in scanner.all_hosts() if scanner[x]['status']['state'] != 'up']
+
+    return (reachable_hosts, unreachable_hosts)
+
+
 def camera_check(address):
     actual_cams = []
-    urls = [f'http://{address}/mjpg/video.mjpg',
-        f'rtsp://{address}/mpeg4/media.amp',
-        f'rtsp://{address}/axis-media/media.amp?',
-        f'rtsp://{address}/onvif-media/media.amp',
-        f'http://{address}/axis-cgi/mjpg/video.cgi',
-        f'rtsp://{address}/ucast/12',
-        f'http://{address}/mjpg/1/video.mjpg?Axis-Orig-Sw=true',
-        f'http://{address}/stream.asf',
-        f'http://{address}/mjpg/1/video.mjpg',
-        f'rtsp://{address}/mpeg4',
-        ]
+    # url_strings.py contains separated urls & urls_auth
     videoname = ('/opt/vvs/videofiles/' + address + current_time.strftime("%Y%m%d_%H%M%S") + '.mp4')
     for url in urls:
         # ffmpeg process 
