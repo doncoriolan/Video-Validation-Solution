@@ -33,6 +33,11 @@ def favicon():
 
 @app.route('/')
 def upload():
+    """Root route
+
+    Code here is responsible for generating timestamps on data if it exists
+    """
+
     try: 
         timestamp = stat(locations["analyzer_output_file"]).st_mtime
         date = str(datetime.fromtimestamp(timestamp)).split('.')[0]
@@ -45,6 +50,18 @@ def upload():
 #FIXME: rename to analyser and explorer (for new function)
 @app.route('/uploader', methods = ['GET', 'POST'])
 def upload_file():
+    """Function (and route) responsible for uploading lists of cameras to scan
+
+    Validation is handled on both the frontend and backend,
+    based on the number of columns in the incoming CSV.
+    Separator used is ','
+
+    Simple POST request can easily be used from eg. curl to automate.
+
+    The function also assigns a global instance of the VVS analyser,
+    used for keeping track of ongoing processing and its results.
+    """
+
     try:
         if request.method == 'POST':
             if vvs_check()['state'] == "running":
@@ -73,21 +90,38 @@ def upload_file():
 
 @app.route('/explorer', methods = ['POST'])
 def initiate_search():
+    """Route for starting a camera search, given a subnet as input.
+
+    Just like the analyzer route, a global search instance is used to
+    keep track of the state and results of a search. Since this is
+    another POST request, curl can also be used to initiate.
+    """
+
     if request.method == 'POST':
         logger.debug('initiating search')
         #FIXME: subnet form validation
         if explorer_check()['state'] == "running":
             return render_template('error.html', title="Scheduling Error", message="Search already running")
 
-        logger.debug(request.form['explorer_input'])
+        logger.debug(request.form)
         #return render_template('error.html', title="Stop", message="exited")
         global explorer_instance
-        explorer_instance = subprocess.Popen(['/analysis/find_cameras.py', request.form['explorer_input']], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        command = [
+            '/analysis/finding_cameras.py',
+            request.form['explorer_manufacturer'],
+            request.form['explorer_subnet']
+        ]
+        if ('username' in request.form) and ('password' in request.form):
+            command.append(request.form['explorer_user'])
+            command.append(request.form['explorer_pass'])
+        logger.debug(command)
+        #TODO: implement server side validation (as opposed to validating it inside finding_cameras.py)
+        #      to ensure users can see what failed if something is mistyped
+        explorer_instance = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         return render_template('success.html')
 
 def analysis_results_colorcoding(row):
-    # only printing name and RTSP error
     if row['rtsp_error'] == "No":
         return [status['green']]*2 #*row_width just displaying name & rtsp error
     else:
@@ -95,6 +129,11 @@ def analysis_results_colorcoding(row):
 
 @app.route('/analysis_results', methods = ['GET'])
 def show_analysis_results():
+    """Web UI for seeing a preview of the downloadable results
+
+    Using pandas for easy parsing of Excel sheets and a colorcoding
+    function to distinguish between results.
+    """
     try:
         excel_file = pandas.read_excel(locations['analyzer_output_file'])[['name','rtsp_error']]
         logger.info('file opened')
@@ -104,17 +143,18 @@ def show_analysis_results():
         logger.exception("Failed to serve analysis results")
 
 def search_results_colorcoding(row):
-    if row['open ports'] == 'None':
-        return ['background-color: Salmon;']*3
-    elif row['likely camera']:
-        return ['background-color: LightGreen;']*3
-    else:
-        return ['background-color: LightGoldenrodYellow;']*3
+    width = 2
+    if row['result'] == 'Not camera':
+        return ['background-color: Salmon;']*width
+    elif row['result'] != 'Not camera':
+        return ['background-color: LightGreen;']*width
+#    else:
+#        return ['background-color: LightGoldenrodYellow;']*width
 
 @app.route('/search_results', methods = ['GET'])
 def show_search_results():
     try:
-        excel_file = pandas.read_excel(locations['explorer_output_file'])
+        excel_file = pandas.read_excel(locations['explorer_output_file']).replace(pandas.np.nan, 'Not camera', regex=True)
         logger.info('file opened')
         logger.info(f"excel_file: {excel_file}")
         styled_table = excel_file.style.apply(search_results_colorcoding, axis=1)
@@ -133,6 +173,11 @@ def explorer_check():
     return subprocess_state(explorer_instance)
 
 def subprocess_state(instance):
+    """Used for normalising output of the check_* functions
+
+    Currently, only distinguishes between failed/successful runs and
+    no results present.
+    """
     logger.info(instance)
     if instance == None:
         return {"state": "stopped"}

@@ -165,25 +165,26 @@ def check_static_output(cameras, check_name):
             # done as a PNG to prevent further lossiness making an image that's too close to static noise for ImageMagick
             imagename = camera['name'] + '.png'
             #FIXME: generate image to check 
-            process = subprocess.Popen([ffmpeg_location, "-ss", "5", "-i", f"{locations['videofiles']}/{camera['name']}.png", "-frames:v", "1", f"{locations['imagefiles']}/{imagename}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            process = subprocess.Popen([ffmpeg_location, "-ss", "5", "-i", f"{locations['videofiles']}/{camera['name']}.mp4", "-frames:v", "1", f"{locations['imagefiles']}/{imagename}"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = str(process.communicate())
             logger.debug(f"stdout: {output}")
 
+
             process = subprocess.Popen([
                 convert_location,
-                f"{locations['imagefiles']}/{imagename}",
+                f"{locations['imagefiles']}{imagename}",
                 '-colorspace', 'HSL',
                 '-channel', 'S',
                 '-separate',
-                '-format', '%M avg sat=%[fx:int(mean*100)]\n',
+                '-format', '%M avg sat=%[fx:int(mean*100)]',
                 "info:"
             ], stdout=subprocess.PIPE)
             # wait until Popen call finished
             output = str(process.communicate()[0])
             logger.debug(f"stdout: {output}")
 
-            output = list(filter(lambda x: x != '', output.split('\n')))
-            output = '\n'.join(output[200:])
+            #output = list(filter(lambda x: x != '', output.split('\n')))
+            #output = '\n'.join(output[200:])
 
             if ('sat=0' in output):
                 camera['checks'].append((check_name, 'Yes'))
@@ -264,6 +265,6 @@ non_critical_checks = {
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename=f"{locations['persistent_location']}/diamond.log", level=logging.INFO)
+    logging.basicConfig(filename=f"{locations['persistent_location']}/diamond.log", level=logging.DEBUG)
     logger = logging.getLogger('diamond.log')
     main()
