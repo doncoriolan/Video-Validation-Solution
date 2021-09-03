@@ -45,7 +45,7 @@ chmod -R 0770 "$vvs_persistent_data"
 
 # make the base executable
 chmod 0755 /analysis/diamond_loop.py
-chmod 0755 /analysis/find_cameras.py
+chmod 0755 /analysis/finding_cameras.py
 
 # for correct placement of output spreadsheet
 
@@ -58,7 +58,7 @@ chmod 0755 /analysis/find_cameras.py
 service nginx start
 
 # for file verification
-sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /ui  --workers 1 --bind unix:/tmp/ui.sock -m 007 --log-file=/tmp/gunicorn.log --log-level debug --enable-stdio-inheritance wsgi:app
+sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /ui  --workers 1 --bind unix:/tmp/ui.sock -m 007 --log-file=/tmp/gunicorn.log --log-level DEBUG --enable-stdio-inheritance wsgi:app
 
 # default bash shell
 cd /opt/vvs

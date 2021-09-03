@@ -146,10 +146,10 @@ def search_results_colorcoding(row):
     width = 2
     if row['result'] == 'Not camera':
         return ['background-color: Salmon;']*width
-    elif row['likely camera']:
+    elif row['result'] != 'Not camera':
         return ['background-color: LightGreen;']*width
-    else:
-        return ['background-color: LightGoldenrodYellow;']*width
+#    else:
+#        return ['background-color: LightGoldenrodYellow;']*width
 
 @app.route('/search_results', methods = ['GET'])
 def show_search_results():
