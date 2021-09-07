@@ -57,7 +57,7 @@ def camera_loop(manufacturer, ips, username, password):
             #else:
             #    print("Not a camera")
         if ip not in actual_cams:
-            actual_cams[ip] = None
+            actual_cams[ip] = "Not camera"
     return actual_cams
 
 
@@ -93,7 +93,7 @@ def main():
     actual_cams = camera_loop(args.manufacturer, reachable, args.username, args.password)
 
     df = pd.DataFrame.from_dict(actual_cams, orient="index", columns=['result'])
-    df.to_excel(f'{locations["persistent_location"]}/search.xlsx', index=True, index_label="address")
+    df.to_excel(f'{locations["explorer_output_file"]}', index=True, index_label="address")
     print(f"df: {df}")
 
 if __name__ == "__main__":
