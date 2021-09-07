@@ -154,7 +154,7 @@ def search_results_colorcoding(row):
 @app.route('/search_results', methods = ['GET'])
 def show_search_results():
     try:
-        excel_file = pandas.read_excel(locations['explorer_output_file']).replace(pandas.np.nan, 'Not camera', regex=True)
+        excel_file = pandas.read_excel(locations['explorer_output_file'])
         logger.info('file opened')
         logger.info(f"excel_file: {excel_file}")
         styled_table = excel_file.style.apply(search_results_colorcoding, axis=1)
