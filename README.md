@@ -31,12 +31,13 @@ Configuration is mostly done by files being present or not in persistent storage
 4. `systemctl start docker`
 5. `systemctl enable docker`
 6.  `docker login ghcr.io -u <username>`
-7. Pull docker image, the link for which can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container). Alternatively, the repository can be cloned to build the image outside of Github actions. Useful for testing uncomitted changes.
-8. Create persistent storage with the command `docker volume create persistent_data`, the name of the volume can be changed but needs to be kept consistent in later steps
-9. Create a logins file with the command `htpasswd -c logins <user>` defining a username in the command and putting the password in the interactive prompts. The file needs to be placed in the persistent storage from the host, by default under /var/lib/docker/volumes/<name>/_data/logins
-10. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
-11. Image can now be tested using `sudo docker run -p80:80 -p443:443 --mount source=persistent_data,target=/opt/vvs -it <image id>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
-12. Once successfully tested the container can be started headless
+7.  `docker run -p80:80 -p443:443 --volume=persistent_data:/opt/vvs -it <Container Image>`
+8. Pull docker image, the link for which can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container). Alternatively, the repository can be cloned to build the image outside of Github actions. Useful for testing uncomitted changes.
+9. Create persistent storage with the command `docker volume create persistent_data`, the name of the volume can be changed but needs to be kept consistent in later steps
+10. Create a logins file with the command `htpasswd -c logins <user>` defining a username in the command and putting the password in the interactive prompts. The file needs to be placed in the persistent storage from the host, by default under /var/lib/docker/volumes/<name>/_data/logins
+11. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
+12. Image can now be tested using `sudo docker run -p80:80 -p443:443 --mount source=persistent_data,target=/opt/vvs -it <image id>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
+13. Once successfully tested the container can be started headless
   
 # Troubleshooting
 
