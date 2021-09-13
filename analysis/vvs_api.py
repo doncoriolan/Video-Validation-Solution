@@ -28,6 +28,6 @@ while True:
         if __name__ == "__main__":
             app.run(debug=True, host='0.0.0.0')
     # Accept the error if the excel sheet isnt ready yet
-    except ValueError as err:
+    except FileNotFoundError as err:
         time.sleep(60)
         continue
