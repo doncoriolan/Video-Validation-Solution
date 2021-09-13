@@ -11,7 +11,7 @@ ENV vvs_explorer_output=$explorer_output
 
 RUN apt update
 RUN apt install -y nginx python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools sudo iputils-ping nmap
-RUN python3 -m pip install wheel gunicorn flask python-nmap pandas requests
+RUN python3 -m pip install wheel gunicorn flask python-nmap pandas requests aniso8601==8.0.0 Flask-RESTful==0.3.8 itsdangerous==1.1.0
 #RUN npm -g install imgclip
 
 # web UI
