@@ -61,7 +61,7 @@ service nginx start
 sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /ui  --workers 1 --bind unix:/tmp/ui.sock -m 007 --log-file=/tmp/gunicorn.log --log-level DEBUG --enable-stdio-inheritance wsgi:app
 
 # start API service
-python3 /analysis/vvs_api.py
+python3 /analysis/vvs_api.py &
 
 # default bash shell
 cd /opt/vvs
