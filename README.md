@@ -26,13 +26,20 @@ Configuration is mostly done by files being present or not in persistent storage
 # Deployment
 
 1. Obtain a VPS connected to the internet, allow inbound TCP 80 & TCP 443, get a [PAT](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) and [configure](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) it
-1. Pull docker image, the link for which can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container). Alternatively, the repository can be cloned to build the image outside of Github actions. Useful for testing uncomitted changes.
-1. Create persistent storage with the command `docker volume create persistent_data`, the name of the volume can be changed but needs to be kept consistent in later steps
-1. Create a logins file with the command `htpasswd -c logins <user>` defining a username in the command and putting the password in the interactive prompts. The file needs to be placed in the persistent storage from the host, by default under /var/lib/docker/volumes/<name>/_data/logins
-1. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
-1. Image can now be tested using `sudo docker run -p80:80 -p443:443 --mount source=persistent_data,target=/opt/vvs -it <image id>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
-1. Once successfully tested the container can be started headless
-  
+2. `yum -y install httpd-tools`
+3. `yum -y install docker`
+4. `systemctl start docker`
+5. `systemctl enable docker`
+6.  `docker login ghcr.io -u <username>`
+7. Pull docker image, the link for which can be found on the registry [page](https://github.com/mc587/Video-Validation-Solution/pkgs/container/vvs-container). Alternatively, the repository can be cloned to build the image outside of Github actions. Useful for testing uncomitted changes.
+8. Create persistent storage with the command `docker volume create persistent_data`, the name of the volume can be changed but needs to be kept consistent in later steps
+9. Create a logins file with the command `htpasswd -c logins <user>` defining a username in the command and putting the password in the interactive prompts. The file needs to be placed in the persistent storage from the host, by default under /var/lib/docker/volumes/<name>/_data/logins
+10. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
+11. Image can now be tested using `docker run -p80:80 -p443:443 -p5000:5000 --volume=persistent_data:/opt/vvs -it <Container Image>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
+12. Once successfully tested the container can be started headless
+
+- After CSV is imported and the checks are successfully you can access the API Via this URL
+  - http://<IP_OR_DOMAIN>:5000/vvsapi
 # Troubleshooting
 
 Short of knowing what the problem is ahead of time, troubleshooting most likely involves tracing an error found in one of the below log files to bad data, bad code or both. Gunicorn logs will show errors from the Web backend, the analysis and search scripts have their own logs and Nginx will show errors with proxying, SSL and logins. For the frontend, it's a combination of figuring out where data in it was broken and looking at the broswer development tools (usually F12) for console logging.
