@@ -37,7 +37,9 @@ Configuration is mostly done by files being present or not in persistent storage
 10. If necessary, place ssl certificates in /var/lib/docker/volumes/persistent_data/_data/ssl/certificate and /var/lib/docker/volumes/persistent_data/_data/ssl/key for the certificate and key respectively
 11. Image can now be tested using `docker run -p80:80 -p443:443 -p5000:5000 --volume=persistent_data:/opt/vvs -it <Container Image>`, an `--rm` can be used to automatically destroy the container after it's shutdown to limit changes only to persistent storage
 12. Once successfully tested the container can be started headless
-  
+
+- After CSV is imported and the checks are successfully you can access the API Via this URL
+  - http://<IP_OR_DOMAIN>:5000/vvsapi
 # Troubleshooting
 
 Short of knowing what the problem is ahead of time, troubleshooting most likely involves tracing an error found in one of the below log files to bad data, bad code or both. Gunicorn logs will show errors from the Web backend, the analysis and search scripts have their own logs and Nginx will show errors with proxying, SSL and logins. For the frontend, it's a combination of figuring out where data in it was broken and looking at the broswer development tools (usually F12) for console logging.
