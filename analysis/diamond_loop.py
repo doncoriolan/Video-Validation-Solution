@@ -67,7 +67,6 @@ def check_streams():
        multiple_p = executor.map(ffmpeg_function, urls,name)
        return cameras
 
-print(cameras)
 
 def check_ping(cameras, check_name):
     for camera in cameras:
@@ -223,7 +222,6 @@ def main():
     except Exception as e:
         logger.exception(e)
         exit(1)
-    print(cameras)
 
     stream_checks = {}
     for check in critical_checks:
