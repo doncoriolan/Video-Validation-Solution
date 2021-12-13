@@ -47,6 +47,7 @@ chmod -R 0770 "$vvs_persistent_data"
 chmod 0755 /analysis/diamond_loop.py
 chmod 0755 /analysis/finding_cameras.py
 chmod 0755 /analysis/vvs_api.py
+chmod 0755 /analysis/kill_and_restart_api.py
 
 # for correct placement of output spreadsheet
 
