@@ -46,6 +46,7 @@ chmod -R 0770 "$vvs_persistent_data"
 # make the base executable
 chmod 0755 /analysis/diamond_loop.py
 chmod 0755 /analysis/finding_cameras.py
+chmod 0755 /analysis/vvs_api.py
 
 # for correct placement of output spreadsheet
 
