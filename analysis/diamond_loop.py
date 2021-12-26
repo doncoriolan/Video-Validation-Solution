@@ -11,7 +11,10 @@ from os import listdir, remove, stat
 from time import sleep
 from sys import stderr, exit
 import pandas as pd
+import concurrent.futures
 import logging
+import signal
+import time
 from file_management import strip_extension, remove_leading_lines, remove_empty_lines, locations
 from network_checks import ping, ping_readout
 
@@ -43,29 +46,29 @@ def cleanup(directories):
                 logger.exception(e)
 
 
-# Open the streams list csv file
-def check_streams():
-    cameras = []
+df = pd.read_csv(locations["analyzer_input_file"], index_col=False)
+name = df['name'].tolist()
+urls = df['url'].tolist()
 
-    with open(locations["analyzer_input_file"]) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        next(csv_reader, None)  # skip the headers
-        for row in csv_reader:
-            #ffmpeg_log = (locations["ffmpeglogs"] + row[0]) # set the ffmpeg log to be named the stream name
-            #addresses.append({'name': row[0], 'address': row[1]})
-            # Open log file for writing
-            # Iterate through streams list
-            #for row in csv_reader:
-            stream_output = (locations["videofiles"] + row[0] + ".mp4") # stream output variable
-            # Subprocess record 1 stream at a time & send the output t0 stdout & stdeer
-            ffmpeg_instance = subprocess.Popen([ffmpeg_location, '-y', '-t', '10', '-i', row[1], stream_output], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            # sent output to ffmpeg log
-            output, error = ffmpeg_instance.communicate()
-            logger.debug(output)
-            error = str(error)
-            cameras.append({'name': row[0], 'url': row[1], 'checks': [], 'ffmpeg_output': error})
+
+stream_output = (locations["videofiles"])
+
+cameras = []
+def ffmpeg_function(urls, name):
+    ffmpeg_instance = subprocess.Popen([ffmpeg_location, '-y', '-t', '10', '-i', urls, stream_output + name + ".mp4"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # sent output to ffmpeg log
+    output, error = ffmpeg_instance.communicate()
+    logger.debug(output)
+    error = str(error)
+    cameras.append({'name': name, 'url': urls, 'checks': [], 'ffmpeg_output': error})
 
     return cameras
+
+def check_streams():
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+       multiple_p = executor.map(ffmpeg_function, urls,name)
+       return cameras
+
 
 def check_ping(cameras, check_name):
     for camera in cameras:
@@ -208,6 +211,8 @@ def check_frozen_output(cameras, check_name):
         except:
             camera['checks'].append((check_name, 'check failed'))
 
+def restart_api():
+    subprocess.Popen(['python3', '/analysis/kill_and_restart_api.py'], shell=False)
 
 def main():
     # clean up so that things don't stack
@@ -248,6 +253,8 @@ def main():
         data = exportable_data
     )
     logger.info(exportable_data)
+
+    restart_api()
 
     exportable_data.to_excel(locations['analyzer_output_file'], index=False)
 

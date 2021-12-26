@@ -47,6 +47,7 @@ Short of knowing what the problem is ahead of time, troubleshooting most likely 
 The main log files can be found at:
   - diamond_loop.py: /opt/vvs/diamond.log
   - find_cameras.py: /opt/vvs/finder.log
+  - kill_and_restart_api.py: /opt/vvs/kill_and_restart.log
   - Gunicorn: /tmp/gunicorn.log
   - Nginx: /var/log/nginx/{access.log, error.log}
   

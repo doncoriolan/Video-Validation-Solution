@@ -47,12 +47,17 @@ chmod -R 0770 "$vvs_persistent_data"
 chmod 0755 /analysis/diamond_loop.py
 chmod 0755 /analysis/finding_cameras.py
 
-# for correct placement of output spreadsheet
 
-#cd "$vvs_persistent_data"
-#sudo -Eu www-data python3 /ui/diamond_loop.py >/opt/vvs/diamond_output.log 2>/opt/vvs/diamond_error.log &
+# Re-Write Visudo file
+echo "" > /etc/sudoers
+echo "Defaults	env_reset" >> /etc/sudoers
+echo "Defaults	mail_badpass" >> /etc/sudoers
+echo "Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"" >> /etc/sudoers
+echo "root ALL=(ALL:ALL) ALL" >> /etc/sudoers
+echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+echo "%admin ALL=(ALL) ALL" >> /etc/sudoers
+echo "%sudo ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
-#sleep 2
 
 # start nginx
 service nginx start
