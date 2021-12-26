@@ -8,27 +8,28 @@ import json
 import time
 import subprocess
 import logging 
+import re
 
 def process():
-    # Ask user for the name of process
-    name = "vvs_api"
-    # iterating through each instance of the process
-    for line in os.popen("ps ax | grep " + name + " | grep -v grep"):
-        fields = line.split()     
-        # extracting Process ID from the output
-        pid = fields[0]
-        logger.info(f"killing {pid}")
-        os.kill(int(pid), signal.SIGKILL)
+    # subprocess to find PIDs for the API
+    api_ps = subprocess.Popen(['pgrep', '-lf', 'vvs_api'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = str(api_ps.communicate()[0])
+    # Regex to get the PID
+    process_regex = re.compile(r'(\d\d)')
+    # send numbers found from Regex to Variable
+    pids = process_regex.findall(output)
+    for pid in pids:
+        # subprocess to kill the PIDs
+        subprocess.run(['/usr/bin/sudo', 'kill', '-9', pid])
+        logger.info(f"Killing Process {pid}")
 
+# Function to start the API
 def start_api():
-    api_process = subprocess.call(['/analysis/vvs_api.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    api_output = str(api_process.communicate()[1])
-    logger.debug(api_output)
+    subprocess.call(['/analysis/vvs_api.py'])
 
 
-if __name__ == "__main__":
-    logging.basicConfig(filename="/opt/vvs/kill_and_restart.log", level=logging.DEBUG)
-    logger = logging.getLogger('kill_and_restart.log')
-    process()
-    logger.info('running VVS API')
-    start_api()
+logging.basicConfig(filename="/opt/vvs/kill_and_restart.log", level=logging.DEBUG)
+logger = logging.getLogger('kill_and_restart.log')
+process()
+logger.info('running VVS API')
+start_api()
