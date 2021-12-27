@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from flask import Flask
 from flask_restful import Api, Resource
 import pandas
@@ -25,8 +27,8 @@ while True:
         # set the URL of the API
         api.add_resource(VvsResults, "/vvsapi")
         # run the code 
-        if __name__ == "__main__":
-            app.run(debug=True, host='0.0.0.0')
+        app.run(debug=True, host='0.0.0.0')
+        continue
     # Accept the error if the excel sheet isnt ready yet
     except FileNotFoundError as err:
         time.sleep(60)
