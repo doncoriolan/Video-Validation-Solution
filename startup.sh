@@ -58,6 +58,9 @@ echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 echo "%admin ALL=(ALL) ALL" >> /etc/sudoers
 echo "%sudo ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
+#Create Dummy CSV Inputfile
+echo "name,url" > /opt/vvs/streams.csv 
+echo "stream1,rtsp://streamingurl:554/stream1" >> /opt/vvs/streams.csv 
 
 # start nginx
 service nginx start
