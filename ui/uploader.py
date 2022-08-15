@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from crypt import methods
 from flask import Flask, render_template, request, Markup
 from werkzeug.utils import secure_filename
 from os import stat, getenv
@@ -9,6 +10,7 @@ from file_management import locations
 import logging
 import subprocess
 import pandas
+import json
 from diamond_loop import critical_checks, non_critical_checks
 
 app = Flask(__name__)
@@ -186,6 +188,13 @@ def subprocess_state(instance):
     elif instance.poll() != None:
         logger.info(f"diamond_loop output: {instance.communicate()}")
         return {"state": "stopped", "result": instance.poll()}
+
+@app.route('/vvsapi', methods = ['GET'])
+def vvs_api():
+    excel_data_fragment = pandas.read_excel('/opt/vvs/diamond_sheet.xlsx', index_col=False)
+    vvs_output_json = excel_data_fragment.to_json(orient="records")
+    parsed = json.loads(vvs_output_json)
+    return parsed
 
 if __name__ == '__main__':
     app.run(debug = True)

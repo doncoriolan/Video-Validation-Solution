@@ -46,8 +46,10 @@ chmod -R 0770 "$vvs_persistent_data"
 # make the base executable
 chmod 0755 /analysis/diamond_loop.py
 chmod 0755 /analysis/finding_cameras.py
-
-
+chown www-data:www-data /analysis/diamond_loop.py
+chown www-data:www-data /opt/vvs/diamond.log 
+chown www-data:www-data /opt/vvs/diamond_sheet.xlsx
+#chown www-data:www-data /analysis/vvs_api.py
 # Re-Write Visudo file
 echo "" > /etc/sudoers
 echo "Defaults	env_reset" >> /etc/sudoers
@@ -61,6 +63,7 @@ echo "%sudo ALL=(ALL:ALL) ALL" >> /etc/sudoers
 #Create Dummy CSV Inputfile
 echo "name,url" > /opt/vvs/streams.csv 
 echo "stream1,rtsp://streamingurl:554/stream1" >> /opt/vvs/streams.csv 
+chmod +w /opt/vvs/streams.csv
 
 # start nginx
 service nginx start
@@ -69,7 +72,7 @@ service nginx start
 sudo -Eu www-data /usr/local/bin/gunicorn -D --chdir /ui  --workers 1 --bind unix:/tmp/ui.sock -m 007 --log-file=/tmp/gunicorn.log --log-level DEBUG --enable-stdio-inheritance wsgi:app
 
 # start API service
-python3 /analysis/vvs_api.py &
+#python3 /analysis/vvs_api.py &
 
 # default bash shell
 cd /opt/vvs
