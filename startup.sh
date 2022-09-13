@@ -38,6 +38,8 @@ mkdir -p "$vvs_persistent_data"/log/;
 mkdir -p "$vvs_persistent_data"/ffmpeglog/;
 mkdir -p "$vvs_persistent_data"/camerafinder/logs;
 mkdir -p "$vvs_persistent_data"/camerafinder/nmaplog;
+touch /opt/vvs/diamond.log
+touch /opt/vvs/diamond_sheet.xlsx
 
 # make sure both web UI & video parser can access persistent storage
 chown -R www-data:www-data "$vvs_persistent_data"
