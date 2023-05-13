@@ -211,9 +211,6 @@ def check_frozen_output(cameras, check_name):
         except:
             camera['checks'].append((check_name, 'check failed'))
 
-def restart_api():
-    subprocess.Popen(['python3', '/analysis/kill_and_restart_api.py'], shell=False)
-
 def main():
     # clean up so that things don't stack
     logger.info('beginning cleanup')
@@ -253,8 +250,6 @@ def main():
         data = exportable_data
     )
     logger.info(exportable_data)
-
-    restart_api()
 
     exportable_data.to_excel(locations['analyzer_output_file'], index=False)
 

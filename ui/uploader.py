@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from crypt import methods
-from flask import Flask, render_template, request, Markup
+from flask import Flask, render_template, request, Markup, jsonify
 from werkzeug.utils import secure_filename
 from os import stat, getenv
 from sys import stderr
@@ -191,10 +191,16 @@ def subprocess_state(instance):
 
 @app.route('/vvsapi', methods = ['GET'])
 def vvs_api():
-    excel_data_fragment = pandas.read_excel('/opt/vvs/diamond_sheet.xlsx', index_col=False)
-    vvs_output_json = excel_data_fragment.to_json(orient="records")
-    parsed = json.loads(vvs_output_json)
-    return parsed
+    try:
+        excel_data_fragment = pandas.read_excel('/opt/vvs/diamond_sheet.xlsx', index_col=False)
+        #logger.info(excel_data_fragment)
+        vvs_output_json = excel_data_fragment.to_json(orient="records")
+        logger.info(vvs_output_json)
+        #logger.info(parsed)
+        return vvs_output_json
+    except Exception as e:
+        logger.error(e)
+        return "NO DATA"
 
 if __name__ == '__main__':
     app.run(debug = True)
