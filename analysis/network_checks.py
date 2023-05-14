@@ -40,6 +40,7 @@ extended_port_list=[
     "8087",
     "8088",
     "8089",
+    "8090"
 ]
 extended_ports = ",".join(extended_port_list)
 

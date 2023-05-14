@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  vvs_container:
+    stdin_open: true
+    tty: true
+    container_name: ${CONTAINER_NAME}
+    build: .
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./ui:/ui
+      #- ./nginx/ui:/etc/nginx/sites-available/default
+      - ./analysis:/analysis
+      - .logins:${APP_DIR}
+      - persistent_data:${APP_DIR}
+    environment:
+      - vvs_persistent_data=${APP_DIR}
+      - vvs_analyzer_input=${ANALYZER_INPUT}
+      - vvs_analyzer_output=${ANALYZER_OUTPUT}
+      - vvs_explorer_output=${EXPLORER_OUTPUT}
+
+volumes:
+  persistent_data:

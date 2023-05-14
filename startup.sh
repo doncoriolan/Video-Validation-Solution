@@ -41,9 +41,18 @@ mkdir -p "$vvs_persistent_data"/camerafinder/nmaplog;
 touch /opt/vvs/diamond.log
 touch /opt/vvs/diamond_sheet.xlsx
 
+
+#Create Dummy CSV Inputfile
+echo "name,url" > /opt/vvs/streams.csv 
+echo "stream1,rtsp://streamingurl:554/stream1" >> /opt/vvs/streams.csv
+chmod +w /opt/vvs/streams.csv
+
 # make sure both web UI & video parser can access persistent storage
 chown -R www-data:www-data "$vvs_persistent_data"
 chmod -R 0770 "$vvs_persistent_data"
+
+
+
 
 # make the base executable
 chmod 0755 /analysis/diamond_loop.py
@@ -61,10 +70,6 @@ echo "www-data ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 echo "%admin ALL=(ALL) ALL" >> /etc/sudoers
 echo "%sudo ALL=(ALL:ALL) ALL" >> /etc/sudoers
 
-#Create Dummy CSV Inputfile
-echo "name,url" > /opt/vvs/streams.csv 
-echo "stream1,rtsp://streamingurl:554/stream1" >> /opt/vvs/streams.csv 
-chmod +w /opt/vvs/streams.csv
 
 # start nginx
 service nginx start
