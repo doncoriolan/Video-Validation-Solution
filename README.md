@@ -37,6 +37,10 @@ Docker needs to be install on the system.
   - install htpasswd
   - `htpasswd -c logins <user>`
 
+- CSV File
+  - csv file headers must be `name,url`
+  - take a look at example_csv.csv 
+
 - After CSV is imported and the checks are successfully you can access the API Via this URL
   - http://<IP_OR_DOMAIN>/vvsapi
 # Troubleshooting
