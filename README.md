@@ -16,8 +16,6 @@ Input is in the form of a subnet directly in the Web UI. Results can also be vie
 # Overview
 Currently, Docker containers are used to deploy the script. The base image is mc587/vvs-ubuntu and a Dockerfile is present to add the necessary files for the web UI and the analysis script with a startup script that handles starting all services. The created image can be used on its own as a self hosted analysis tool, with persistent storage that can be used to keep the working directory of the vvs script. 
 
-There is a Github action for generating Docker images which can be pulled with a PAT.
-
 The docker container currently runs Gunicorn and Nginx, ideally separating those into two containers eventually.
 The public facing side of the container is the Nginx server handling static files, authentication, TLS and proxying the connection to Gunicorn.
 Gunicorn is running the Flask code for the UI with diamond_loop.py and find_cameras.py treated as external binaries.
@@ -39,7 +37,7 @@ Docker needs to be install on the system.
 
 - CSV File
   - csv file headers must be `name,url`
-  - take a look at example_csv.csv 
+  - take a look at example_csv.csv
 
 - After CSV is imported and the checks are successfully you can access the API Via this URL
   - http://<IP_OR_DOMAIN>/vvsapi
